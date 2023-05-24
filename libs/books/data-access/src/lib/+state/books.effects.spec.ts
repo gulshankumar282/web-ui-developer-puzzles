@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { provideMockStore } from '@ngrx/store/testing';
 import { ReplaySubject } from 'rxjs';
@@ -28,18 +28,23 @@ describe('BooksEffects', () => {
   });
 
   describe('loadBooks$', () => {
-    it('should work', done => {
-      actions = new ReplaySubject();
+    it('should work', fakeAsync(() => {
+      actions = new ReplaySubject(1);
       actions.next(BooksActions.searchBooks({ term: '' }));
 
-      effects.searchBooks$.subscribe(action => {
-        expect(action).toEqual(
-          BooksActions.searchBooksSuccess({ books: [createBook('A')] })
-        );
-        done();
+      let receivedAction;
+      effects.searchBooks$.subscribe((action) => {
+        receivedAction = action;
       });
 
-      httpMock.expectOne('/api/books/search?q=').flush([createBook('A')]);
-    });
+      tick(500);
+
+      const req = httpMock.expectOne(`/api/books/search?q=`);
+      req.flush([createBook('A')]);
+
+      expect(receivedAction).toEqual(
+        BooksActions.searchBooksSuccess({ books: [createBook('A')] })
+      );
+    }));
   });
 });
