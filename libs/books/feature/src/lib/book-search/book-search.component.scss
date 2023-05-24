@@ -35,6 +35,11 @@ form {
 
 .book--content--cover {
   margin-right: $spacing-xxs;
+
+  img{
+    width: $img-width-list;
+    height: $img-height-list;
+  }
 }
 
 .book--content--info {
@@ -68,5 +73,5 @@ form {
   justify-content: center;
   min-height: 50vh;
   font-size: 1.5rem;
-  color: $gray40;
+  color: $gray85;
 }
