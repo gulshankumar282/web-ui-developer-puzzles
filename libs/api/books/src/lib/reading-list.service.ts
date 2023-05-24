@@ -9,7 +9,8 @@ export class ReadingListService {
   private readonly storage = new StorageService<ReadingListItem[]>(KEY, []);
 
   async getList(): Promise<ReadingListItem[]> {
-    return this.storage.read();
+    const readingList = this.storage.read();
+    return readingList;
   }
 
   async addBook(b: Book): Promise<void> {
@@ -27,5 +28,21 @@ export class ReadingListService {
     this.storage.update(list => {
       return list.filter(x => x.bookId !== id);
     });
+  }
+
+  async finishedBook(id: string): Promise<ReadingListItem | undefined> {
+    const currentDate = new Date().toISOString();
+    let updatedItem: ReadingListItem | undefined;
+    this.storage.update((list) => {
+      return list.map((x) => {
+        if (x.bookId === id) {
+          const finishedList = { ...x, finished: true, finishedDate: currentDate };
+          updatedItem = finishedList;
+          return finishedList;
+        }
+        return x;
+      });
+    });
+    return updatedItem;
   }
 }

@@ -8,16 +8,37 @@
   padding: $spacing-xxs;
 }
 
+.reading-list-card {
+  background-color: $gray20;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  .text-center {
+    text-align: center;
+    button {
+      font-size: 12px;
+      padding: 0 12px;
+      /* margin: 3px; */
+      border-radius: 20px;
+    }
+  }
+}
+
 .reading-list-item {
+  // background-color: $gray20;
+  padding: 5px;
   display: flex;
   justify-content: center;
-  margin-bottom: $spacing-xs;
+  // margin-bottom: $spacing-xs;
   width: 100%;
 
   > * {
-    display: flex;
+    // display: flex;
     flex-direction: column;
     justify-content: center;
+  }
+
+  .reading-list-item--finished {
+    border-radius: 20px;
   }
 }
 
