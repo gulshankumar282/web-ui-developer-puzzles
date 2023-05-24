@@ -1,4 +1,4 @@
-<form [formGroup]="searchForm" (submit)="searchBooks()">
+<form [formGroup]="searchForm" (keyup)="searchBooks()">
   <mat-form-field floatLabel="never">
     <input
       autoFocus
