@@ -3,76 +3,62 @@ describe('When: I use the reading list feature', () => {
     cy.startAt('/');
   });
 
-  it('Then: I should see my reading list', () => {
-    cy.get('[data-testing="toggle-reading-list"]').click();
-    cy.get('[data-testing="reading-list-container"]').should('contain.text', 'My Reading List');
-  });
-
   context('When: Interacting with the "Want to Read" button', () => {
     beforeEach(() => {
       // Search for books
-      cy.get('input[type="search"]').type('JavaScript');
+      cy.get('input[type="search"]').type('javascript');
       cy.get('button[aria-label="Search"]').click();
 
       // Wait for search results to load
-      cy.get('[data-testing="book-item"]').should('have.length.greaterThan', 0);
+      cy.get('[data-testing="book-item"]').should('have.length.greaterThan', 1);
     });
 
-    it('Then: The "Want to Read" button should be disabled after clicking', () => {
-      cy.get('[data-testing="book-item"]').first().within(() => {
-        cy.get('button[aria-label="want_to_read"]').should('not.be.disabled');
-        cy.get('button[aria-label="want_to_read"]').click();
-        cy.get('button[aria-label="want_to_read"]').should('be.disabled');
-      });
-    });
-
-    it('Then: The "Want to Read" button should be disabled after clicking and show snackbar', () => {
-      cy.get('[data-testing="book-item"]').first().within(() => {
-        cy.get('button[aria-label="want_to_read"]').should('not.be.disabled');
-        cy.get('button[aria-label="want_to_read"]').click();
-        cy.get('button[aria-label="want_to_read"]').should('be.disabled');
-      });
-
+    it('Then: The "Want to Read" button should be disabled after clicking and show snackbar immediately', () => {
+      cy.get('[data-testing="book-item"]').first().as('firstBook');
+      cy.get('@firstBook').find('[data-testing="add_to_reading_list"]').click();
+      cy.get('@firstBook').find('[data-testing="add_to_reading_list"]').should('be.disabled');
       cy.get('.mat-snack-bar-container').should('be.visible');
       cy.get('.mat-snack-bar-container').contains('Added');
       cy.get('.mat-snack-bar-container').contains('Undo').click();
-      cy.get('button[aria-label="want_to_read"]').should('not.be.disabled');
+      cy.get('@firstBook').find('[data-testing="add_to_reading_list"]').should('not.be.disabled');
     });
   });
 
   context('When: Interacting with the reading list', () => {
+
     beforeEach(() => {
       // Search for books
-      cy.get('input[type="search"]').type('JavaScript');
+      cy.get('input[type="search"]').type('javascript');
       cy.get('button[aria-label="Search"]').click();
 
       // Wait for search results to load
-      cy.get('[data-testing="book-item"]').should('have.length.greaterThan', 0);
-
-      // Click on the first book's "Want to Read" button to add it to the reading list
-      cy.get('[data-testing="book-item"]').first().within(() => {
-        cy.get('button').should('not.be.disabled');
-        cy.get('button').click();
-        cy.get('button').should('be.disabled');
-      });
+      cy.get('[data-testing="book-item"]').should('have.length.greaterThan', 1);
     });
 
-    it('Then: Clicking the remove button should remove the book from the reading list and show snackbar', () => {
+    it('Then: clicking the remove button should remove the book and show snackbar', () => {
+
+      //get the first book from search result
+      cy.get('[data-testing="book-item"]').first().as('firstBook');
+      cy.get('@firstBook').find('[data-testing="add_to_reading_list"]').click();
+
+      //Check for the Reading list 
       cy.get('[data-testing="toggle-reading-list"]').click();
       cy.get('[data-testing="reading-list-container"]').should('contain.text', 'My Reading List');
-      cy.get('[data-testing="book-item"]').should('have.length', 1);
+      cy.get('[data-testing="reading-list-item"]').should('have.length', 1);
+      cy.get('[data-testing="reading-list-item"]').first().as('readingListFirstBook');
 
-      cy.get('[data-testing="book-item"]').first().within(() => {
-        cy.get('button').should('be.visible').click();
-      });
 
+      //select the first book
+      cy.get('@readingListFirstBook').find('[data-testing="remove_from_list"]').click();
+      cy.get('[data-testing="reading-list-item"]').should('have.length', 0);
+      cy.get('@firstBook').find('[data-testing="add_to_reading_list"]').should('not.be.disabled');
+
+      //show snackbar
       cy.get('.mat-snack-bar-container').should('be.visible');
       cy.get('.mat-snack-bar-container').contains('Removed');
-      cy.get('[data-testing="reading-list-container"]').should('not.contain.text', 'My Reading List');
-      cy.get('[data-testing="book-item"]').should('not.exist');
-      cy.get('[data-testing="book-item"]').first().within(() => {
-        cy.get('button[aria-label="want_to_read"]').should('not.be.disabled');
-      });
+      cy.get('.mat-snack-bar-container').contains('Undo').click();
+      cy.get('[data-testing="reading-list-item"]').should('have.length', 1);
+      cy.get('@firstBook').find('[data-testing="add_to_reading_list"]').should('be.disabled');
     });
   });
 });
