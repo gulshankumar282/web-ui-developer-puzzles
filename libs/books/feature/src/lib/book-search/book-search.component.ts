@@ -17,6 +17,11 @@ import { Book } from '@tmo/shared/models';
 })
 export class BookSearchComponent implements OnInit {
   books: ReadingListBook[];
+  paginatedData: ReadingListBook[];
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  totalPages: number;
+  totalItems: number;
 
   searchForm = this.fb.group({
     term: ''
@@ -34,7 +39,42 @@ export class BookSearchComponent implements OnInit {
   ngOnInit(): void {
     this.store.select(getAllBooks).subscribe(books => {
       this.books = books;
+      this.totalItems = this.books.length;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+        this.updatePage();
     });
+  }
+
+  updatePage(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedData = this.books.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePage();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePage();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePage();
+    }
+  }
+
+  getPageRange(): number[] {
+    return Array(this.totalPages).fill(0).map((_, index) => index + 1);
+    
   }
 
   formatDate(date: void | string) {
