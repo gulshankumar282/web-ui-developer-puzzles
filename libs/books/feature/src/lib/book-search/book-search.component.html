@@ -15,7 +15,7 @@
 
 <ng-container *ngIf="searchTerm; else empty">
   <div class="book-grid">
-    <div class="book" data-testing="book-item" *ngFor="let b of books">
+    <div class="book" data-testing="book-item" *ngFor="let b of paginatedData">
       <div class="book--title">
         {{ b.title }}
       </div>
@@ -43,6 +43,13 @@
         </div>
       </div>
     </div>
+  </div>
+  <div class="pagination-controls">
+    <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
+    <button *ngFor="let page of getPageRange()" (click)="goToPage(page)" [disabled]="currentPage === page">
+      {{ page }}
+    </button>
+    <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
   </div>
 </ng-container>
 <ng-template #empty>
